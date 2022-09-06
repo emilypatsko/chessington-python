@@ -37,31 +37,60 @@ class Pawn(Piece):
         colour = self.player
         current_square = board.find_piece(self)
         row, col = current_square.row, current_square.col
-        
+   
         if colour == Player.WHITE:
+            square_2 = Square.at(row+2,col)
+            square_1 = Square.at(row+1,col)
+            
             match row:
-                case 1:
-                    return [
-                        Square.at(row+1, col), 
-                        Square.at(row+2, col)
-                        ]
+                case 1: 
+                    out = []
+                    if board.get_piece(square_1) == None:
+                        out.append(square_1)
+                        if board.get_piece(square_2) == None:
+                            out.append(square_2)
+                    return out
                 case 7:
                     return []
                 case _:
-                    return [Square.at(row+1, col)]
+                    if board.get_piece(Square.at(row+1, col)) == None:
+                        return [Square.at(row+1, col)]
+                    else:
+                        return []
                     
         elif colour == Player.BLACK:
-            match row:
-                case 0:
-                    return []
-                case 6:
-                    return [
-                        Square.at(row-1, col), 
-                        Square.at(row-2, col)
-                        ]
-                case _:
-                    return [Square.at(row-1, col)]
+            
+            handle_move(row-1, row-2, col, board, row, self.player)
 
+
+def handle_move(row_ahead_1, row_ahead_2, column, board: Board, row: int, player):
+
+    end_of_board, starting_row = 0, 6 if player==Player.BLACK else 7, 1
+    
+    square_one_in_front = Square.at(row_ahead_1, column)
+    square_two_in_front = Square.at(row_ahead_2, column)
+
+    one_in_front_free = board.get_piece(square_one_in_front) == None
+    two_in_front_free = board.get_piece(square_two_in_front) == None    
+
+    match row:
+        case end_of_board:
+            return []
+        case starting_row:
+            out = []
+            if one_in_front_free:
+                out.append(square_one_in_front)
+
+                if two_in_front_free:
+                    out.append(square_two_in_front)
+            return out
+        case _:
+            if one_in_front_free:
+                return [square_one_in_front]
+            else:
+                return []
+
+    
 
 class Knight(Piece):
     """
